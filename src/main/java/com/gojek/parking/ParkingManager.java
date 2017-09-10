@@ -4,6 +4,7 @@ import com.gojek.parking.exception.IllFormedCommand;
 import com.gojek.parking.model.Vehicle;
 import java.io.*;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.PriorityQueue;
 
@@ -97,10 +98,10 @@ public class ParkingManager {
                     handleStatus(line, split);
                     break;
                 case "registration_numbers_for_cars_with_colour":
-//                handleRegistrationNumbersForCarsWithColour(line, split);
+                    handleRegistrationNumbersForCarsWithColour(line, split);
                     break;
                 case "slot_numbers_for_cars_with_colour":
-//                handleSlotNumbersForCarsWithColour(line, split);
+                    handleSlotNumbersForCarsWithColour(line, split);
                     break;
                 case "slot_number_for_registration_number":
 //                handleSlotNumberForRegistrationNumber(line, split);
@@ -275,5 +276,37 @@ public class ParkingManager {
                     + slots[i].getColour());
             }
         }
+    }
+
+    private void handleRegistrationNumbersForCarsWithColour(String line, String[] split) throws IllFormedCommand {
+        if (slots == null) {
+            throw new IllFormedCommand("create_parking_lot should've been called before");
+        }
+        if (split.length != 2) {
+            throw new IllFormedCommand("Illformed registration_numbers_for_cars_with_colour command " + line);
+        }
+        HashMap<Vehicle.REG_SLOT, LinkedHashSet<String>> colouredVehicles = colorVehicles.get(split[1]);
+        if (colouredVehicles == null || colouredVehicles.isEmpty()) {
+            return;
+        }
+        LinkedHashSet<String> registrationNumbers = colouredVehicles.get(Vehicle.REG_SLOT.REG);
+        if (registrationNumbers == null || registrationNumbers.isEmpty()) {
+            return;
+        }
+
+        Iterator<String> iterator = registrationNumbers.iterator();
+        int i = 0;
+        while (iterator.hasNext()) {
+            System.out.print(iterator.next());
+            ++i;
+            if (i < registrationNumbers.size()) {
+                System.out.print(", ");
+            }
+        }
+        System.out.println("");
+    }
+
+    private void handleSlotNumbersForCarsWithColour(String line, String[] split) throws IllFormedCommand {
+
     }
 }
