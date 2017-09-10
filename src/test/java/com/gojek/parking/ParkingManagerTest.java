@@ -71,7 +71,7 @@ public class ParkingManagerTest {
         String line = "create_parking_lot 4";
         ParkingManager pm = new ParkingManager();
         try {
-            Whitebox.invokeMethod(pm, "parseALine", line);
+            createParkingLot(pm, line);
             Vehicle[] slots = (Vehicle[]) (Object[]) (Whitebox.invokeMethod(pm, "getSlots"));
             Assert.assertEquals(4, slots.length);
             PriorityQueue<Integer> priorityQueue = Whitebox.invokeMethod(pm, "getPriorityQueue");
@@ -79,6 +79,10 @@ public class ParkingManagerTest {
         } catch (RuntimeException ex) {
             Assert.fail(ex.getMessage());
         }
+    }
+
+    private void createParkingLot(ParkingManager pm, String line) throws Exception {
+        Whitebox.invokeMethod(pm, "parseALine", line);
     }
 
 }
