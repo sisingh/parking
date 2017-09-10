@@ -116,12 +116,17 @@ public class ParkingManagerTest {
             for (int i = 0; i < vehiclesToPark.length; ++i) {
                 executeACommand(pm, vehiclesToPark[i]);
             }
-            command = "leave 2";
+            Vehicle[] slotsBeforeLeave = (Vehicle[]) (Object[]) (Whitebox.invokeMethod(pm, "getSlots"));
+            Vehicle name = slotsBeforeLeave[1];
+            int slotToLeave = 2;
+            command = "leave " + slotToLeave;
             executeACommand(pm, command);
             Vehicle[] slots = (Vehicle[]) (Object[]) (Whitebox.invokeMethod(pm, "getSlots"));
             Assert.assertNull(slots[1]);
             PriorityQueue<Integer> priorityQueue = Whitebox.invokeMethod(pm, "getPriorityQueue");
             Assert.assertEquals(1, priorityQueue.size());
+            HashMap<String, Integer> registrationSlot = Whitebox.invokeMethod(pm, "getRegistrationSlot");
+            Assert.assertTrue(!registrationSlot.containsKey(name.getRegistrationNumber()));
         } catch (RuntimeException ex) {
             Assert.fail(ex.getMessage());
         }
