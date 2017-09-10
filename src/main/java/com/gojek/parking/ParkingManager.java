@@ -94,7 +94,7 @@ public class ParkingManager {
                     handleLeave(line, split);
                     break;
                 case "status":
-//                handleStatus(line, split);
+                    handleStatus(line, split);
                     break;
                 case "registration_numbers_for_cars_with_colour":
 //                handleRegistrationNumbersForCarsWithColour(line, split);
@@ -256,5 +256,24 @@ public class ParkingManager {
 
     private Integer getSlot() {
         return priorityQueueToInsert.poll();
+    }
+
+    private void handleStatus(String line, String[] split) throws IllFormedCommand {
+        if (slots == null) {
+            throw new IllFormedCommand("create_parking_lot should've been called before");
+        }
+        if (split.length != 1) {
+            throw new IllFormedCommand("Illformed status command " + line);
+        }
+
+        for (int i = 0; i < slots.length; ++i) {
+            if (slots[i] != null) {
+                if (i == 0) {
+                    System.out.println("Slot No.\t Registration No\t Colour");
+                }
+                System.out.println((i + 1) + "\t" + slots[i].getRegistrationNumber() + "\t"
+                    + slots[i].getColour());
+            }
+        }
     }
 }
