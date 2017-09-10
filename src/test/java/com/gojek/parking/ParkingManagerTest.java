@@ -3,6 +3,7 @@ package com.gojek.parking;
 import com.gojek.parking.model.Vehicle;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.PriorityQueue;
 import org.junit.*;
@@ -156,6 +157,38 @@ public class ParkingManagerTest {
             Assert.assertTrue(registrationNumbers.isEmpty() == false);
             Assert.assertTrue(registrationNumbers.contains("KA-05-MH-1384"));
             Assert.assertTrue(registrationNumbers.contains("MG-14-N-2493") == false);
+        } catch (RuntimeException ex) {
+            Assert.fail(ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testSlotNumbersForCarsWithColour() throws Exception {
+        System.out.println("test registration_numbers_for_cars_with_colour command");
+        ParkingManager pm = new ParkingManager();
+        String vehiclesToPark[] = getVehiclesToPark();
+        try {
+            String command = "create_parking_lot " + vehiclesToPark.length;
+            executeACommand(pm, command);
+            for (int i = 0; i < vehiclesToPark.length; ++i) {
+                executeACommand(pm, vehiclesToPark[i]);
+            }
+            String colour = "Silver";
+            HashMap<String, HashMap<Vehicle.REG_SLOT, LinkedHashSet<String>>> colorVehicles;
+            colorVehicles = Whitebox.invokeMethod(pm, "getColorVehicles");
+
+            HashMap<Vehicle.REG_SLOT, LinkedHashSet<String>> colouredVehicles = colorVehicles.get(colour);
+            Assert.assertTrue(colouredVehicles != null);
+            Assert.assertTrue(colouredVehicles.isEmpty() == false);
+            LinkedHashSet<String> slotNumbers = colouredVehicles.get(Vehicle.REG_SLOT.SLOT);
+            Assert.assertTrue(slotNumbers != null);
+            Assert.assertTrue(slotNumbers.isEmpty() == false);
+            Iterator<String> iterator = slotNumbers.iterator();
+            int i = 0;
+            while (iterator.hasNext()) {
+                Assert.assertEquals(1, Integer.parseInt((iterator.next()) + 1));
+            }
+
         } catch (RuntimeException ex) {
             Assert.fail(ex.getMessage());
         }

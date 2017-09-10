@@ -307,6 +307,29 @@ public class ParkingManager {
     }
 
     private void handleSlotNumbersForCarsWithColour(String line, String[] split) throws IllFormedCommand {
-
+        if (slots == null) {
+            throw new IllFormedCommand("create_parking_lot should've been called before");
+        }
+        if (split.length != 2) {
+            throw new IllFormedCommand("Illformed slot_numbers_for_cars_with_colour command " + line);
+        }
+        HashMap<Vehicle.REG_SLOT, LinkedHashSet<String>> colouredVehicles = colorVehicles.get(split[1]);
+        if (colouredVehicles == null || colouredVehicles.isEmpty()) {
+            return;
+        }
+        LinkedHashSet<String> slotNumbers = colouredVehicles.get(Vehicle.REG_SLOT.SLOT);
+        if (slotNumbers == null || slotNumbers.isEmpty()) {
+            return;
+        }
+        Iterator<String> iterator = slotNumbers.iterator();
+        int i = 0;
+        while (iterator.hasNext()) {
+            System.out.print(Integer.parseInt(iterator.next()) + 1);
+            ++i;
+            if (i < slotNumbers.size()) {
+                System.out.print(", ");
+            }
+        }
+        System.out.println("");
     }
 }
