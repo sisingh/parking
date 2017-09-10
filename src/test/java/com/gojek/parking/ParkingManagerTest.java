@@ -9,6 +9,8 @@ import org.junit.*;
  */
 public class ParkingManagerTest {
 
+    private String[] args = null;
+
     public ParkingManagerTest() {
     }
 
@@ -34,7 +36,6 @@ public class ParkingManagerTest {
     @Test
     public void testMainWithOutFile() {
         System.out.println("test case with null ");
-        String[] args = null;
         try {
             ParkingManager.main(args);
             Assert.fail("It must have thrown FileNotFoundException after passing a null argument");
@@ -47,7 +48,6 @@ public class ParkingManagerTest {
      */
     @Test
     public void testMainWithFile() {
-        String[] args = null;
         System.out.println("test case with actual file");
         args = new String[1];
         args[0] = "/Users/siddharthasingh/hike/ex/Infile.txt";
