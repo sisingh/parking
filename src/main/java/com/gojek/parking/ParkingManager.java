@@ -28,11 +28,11 @@ public class ParkingManager {
         return priorityQueueToInsert;
     }
 
-    public HashMap<String, HashMap<Vehicle.REG_SLOT, LinkedHashSet<String>>> getColorVehicles() {
+    private HashMap<String, HashMap<Vehicle.REG_SLOT, LinkedHashSet<String>>> getColorVehicles() {
         return colorVehicles;
     }
 
-    public HashMap<String, Integer> getRegistrationSlot() {
+    private HashMap<String, Integer> getRegistrationSlot() {
         return registrationSlot;
     }
 
