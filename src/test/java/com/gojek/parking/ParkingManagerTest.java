@@ -194,6 +194,30 @@ public class ParkingManagerTest {
         }
     }
 
+    @Test
+    public void testSlotNumberForRegistrationNumber() throws Exception {
+        System.out.println("test registration_numbers_for_cars_with_colour command");
+        ParkingManager pm = new ParkingManager();
+        String vehiclesToPark[] = getVehiclesToPark();
+        try {
+            String command = "create_parking_lot " + vehiclesToPark.length;
+            executeACommand(pm, command);
+            for (int i = 0; i < vehiclesToPark.length; ++i) {
+                executeACommand(pm, vehiclesToPark[i]);
+            }
+            HashMap<String, Integer> registrationSlot = Whitebox.invokeMethod(pm, "getRegistrationSlot");
+            Assert.assertTrue(registrationSlot != null);
+            Assert.assertTrue(registrationSlot.isEmpty() == false);
+            for (int i = 0; i < vehiclesToPark.length; ++i) {
+                Assert.assertTrue(registrationSlot.containsKey(vehiclesToPark[i].split(" ")[1]));
+            }
+            Assert.assertTrue(registrationSlot.containsKey("garbage") == false);
+
+        } catch (RuntimeException ex) {
+            Assert.fail(ex.getMessage());
+        }
+    }
+
     private String[] getVehiclesToPark() {
         String vehiclesToPark[] = {
             "park KA-05-MH-1384 Silver",

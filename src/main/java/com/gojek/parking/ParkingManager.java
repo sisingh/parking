@@ -104,7 +104,7 @@ public class ParkingManager {
                     handleSlotNumbersForCarsWithColour(line, split);
                     break;
                 case "slot_number_for_registration_number":
-//                handleSlotNumberForRegistrationNumber(line, split);
+                    handleSlotNumberForRegistrationNumber(line, split);
                     break;
                 default:
                     System.err.println("Unknown token : " + split[0]);
@@ -331,5 +331,20 @@ public class ParkingManager {
             }
         }
         System.out.println("");
+    }
+
+    private void handleSlotNumberForRegistrationNumber(String line, String[] split) throws IllFormedCommand {
+        if (slots == null) {
+            throw new IllFormedCommand("create_parking_lot should've been called before");
+        }
+        if (split.length != 2) {
+            throw new IllFormedCommand("Illformed slot_number_for_registration_number command " + line);
+        }
+        String registrationNumber = split[1];
+        if (registrationSlot.containsKey(registrationNumber)) {
+            System.out.println(registrationSlot.get(registrationNumber) + 1);
+        } else {
+            System.out.println("Not found");
+        }
     }
 }
