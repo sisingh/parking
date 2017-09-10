@@ -1,6 +1,8 @@
 package com.gojek.parking;
 
+import com.gojek.parking.model.Vehicle;
 import java.io.FileNotFoundException;
+import java.util.PriorityQueue;
 import org.junit.*;
 import org.powermock.reflect.Whitebox;
 
@@ -61,11 +63,19 @@ public class ParkingManagerTest {
         } catch (RuntimeException ex) {
             Assert.fail(ex.getMessage());
         }
+    }
+
+    @Test
+    public void testCreateParkingLotCommand() throws Exception {
+        System.out.println("test create_parking_lot command");
+        String line = "create_parking_lot 4";
         ParkingManager pm = new ParkingManager();
         try {
-            Whitebox.invokeMethod(pm, "parseFile", args[0]);
-        } catch (FileNotFoundException ex) {
-            Assert.fail("Shouldn't have gotten here..." + ex.getMessage());
+            Whitebox.invokeMethod(pm, "parseALine", line);
+            Vehicle[] slots = (Vehicle[]) (Object[]) (Whitebox.invokeMethod(pm, "getSlots"));
+            Assert.assertEquals(4, slots.length);
+            PriorityQueue<Integer> priorityQueue = Whitebox.invokeMethod(pm, "getPriorityQueue");
+            Assert.assertEquals(4, priorityQueue.size());
         } catch (RuntimeException ex) {
             Assert.fail(ex.getMessage());
         }
