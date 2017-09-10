@@ -91,7 +91,7 @@ public class ParkingManager {
                     handlePark(line, split);
                     break;
                 case "leave":
-//                handleLeave(line, split);
+                    handleLeave(line, split);
                     break;
                 case "status":
 //                handleStatus(line, split);
@@ -116,6 +116,69 @@ public class ParkingManager {
         return true;
     }
 
+    private void handleLeave(String line, String[] split) throws IllFormedCommand {
+        if (slots == null) {
+            throw new IllFormedCommand("create_parking_lot should've been called before");
+        }
+        if (split.length != 2) {
+            throw new IllFormedCommand("Illformed leave command " + line);
+        }
+        Integer slot = null;
+        try {
+            slot = Integer.valueOf(split[1]);
+        } catch (NumberFormatException e) {
+            System.err.println("leave command should contain a proper integer value : " + line);
+            throw new IllFormedCommand("leave command should contain a proper integer value : " + line);
+        }
+        validateSlots(slot);
+        clearSlot(slot);
+        System.out.println("Slot number " + slot + " is free");
+    }
+
+    private void clearSlot(Integer slot) {
+        Vehicle vehicle = slots[slot - 1];
+        //clear from all data structures
+        HashMap<Vehicle.REG_SLOT, LinkedHashSet<String>> colouredVehicle = colorVehicles.get(vehicle.getColour());
+        if (colouredVehicle == null || colouredVehicle.isEmpty()) {
+            return;
+        }
+        //Get registration deleted
+        LinkedHashSet<String> registeredVehicles = colouredVehicle.get(Vehicle.REG_SLOT.REG);
+        if (registeredVehicles == null
+            || registeredVehicles.isEmpty()
+            || !registeredVehicles.contains(vehicle.getRegistrationNumber())) {
+            return;
+        }
+        if (registeredVehicles.contains(vehicle.getRegistrationNumber())) {
+            registeredVehicles.remove(vehicle.getRegistrationNumber());
+        }
+        //Get slots deleted
+        LinkedHashSet<String> slottedVehicles = colouredVehicle.get(Vehicle.REG_SLOT.SLOT);
+        if (slottedVehicles == null
+            || slottedVehicles.isEmpty()
+            || !slottedVehicles.contains(String.valueOf(vehicle.getSlot()))) {
+            return;
+        }
+        if (slottedVehicles.contains(String.valueOf(vehicle.getSlot()))) {
+            slottedVehicles.remove(String.valueOf(vehicle.getSlot()));
+        }
+
+        if (registrationSlot.containsKey(vehicle.getRegistrationNumber())) {
+            registrationSlot.remove(vehicle.getRegistrationNumber());
+        }
+        //clear from actual slots as well, which is '0' indexed
+        slots[slot - 1] = null;
+
+        //And make this slot available
+        priorityQueueToInsert.add(slot - 1);
+    }
+
+    private void validateSlots(Integer slot) {
+        if (slot == null || slot < 1 || slot > this.slots.length) {
+            System.err.println("Invalid slot value : " + slot);
+            System.exit(1);
+        }
+    }
     private void handleCreateParkingLot(String line, String[] split) throws IllFormedCommand {
         if (split.length != 2) {
             throw new IllFormedCommand("Ill formed command " + line);

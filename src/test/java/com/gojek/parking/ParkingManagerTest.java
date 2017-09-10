@@ -86,12 +86,7 @@ public class ParkingManagerTest {
     public void testpark() throws Exception {
         System.out.println("test park command");
         ParkingManager pm = new ParkingManager();
-        String vehiclesToPark[] = {
-            "park KA-05-MH-1384 Silver",
-            "park HR-26-CW-0181 Black",
-            "park MG-14-N-2493 Black",
-            "park KA-05-MH-9702 Gold"
-        };
+        String vehiclesToPark[] = getVehiclesToPark();
 
         try {
             String command = "create_parking_lot " + vehiclesToPark.length;
@@ -107,6 +102,39 @@ public class ParkingManagerTest {
         } catch (RuntimeException ex) {
             Assert.fail(ex.getMessage());
         }
+    }
+
+    @Test
+    public void testLeave() throws Exception {
+        System.out.println("test leave command");
+        ParkingManager pm = new ParkingManager();
+        String vehiclesToPark[] = getVehiclesToPark();
+
+        try {
+            String command = "create_parking_lot " + vehiclesToPark.length;
+            executeACommand(pm, command);
+            for (int i = 0; i < vehiclesToPark.length; ++i) {
+                executeACommand(pm, vehiclesToPark[i]);
+            }
+            command = "leave 2";
+            executeACommand(pm, command);
+            Vehicle[] slots = (Vehicle[]) (Object[]) (Whitebox.invokeMethod(pm, "getSlots"));
+            Assert.assertNull(slots[1]);
+            PriorityQueue<Integer> priorityQueue = Whitebox.invokeMethod(pm, "getPriorityQueue");
+            Assert.assertEquals(1, priorityQueue.size());
+        } catch (RuntimeException ex) {
+            Assert.fail(ex.getMessage());
+        }
+    }
+
+    private String[] getVehiclesToPark() {
+        String vehiclesToPark[] = {
+            "park KA-05-MH-1384 Silver",
+            "park HR-26-CW-0181 Black",
+            "park MG-14-N-2493 Black",
+            "park KA-05-MH-9702 Gold"
+        };
+        return vehiclesToPark;
     }
 
     private void executeACommand(ParkingManager pm, String command) throws Exception {
