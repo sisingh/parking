@@ -3,6 +3,8 @@ package com.gojek.parking;
 import com.gojek.parking.exception.IllFormedCommand;
 import com.gojek.parking.model.Vehicle;
 import java.io.*;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.PriorityQueue;
 
 /**
@@ -13,6 +15,26 @@ public class ParkingManager {
 
     private Vehicle[] slots = null;
     private PriorityQueue<Integer> priorityQueueToInsert = null;
+
+    private final HashMap<String, HashMap<Vehicle.REG_SLOT, LinkedHashSet<String>>> colorVehicles = new HashMap<>();
+    private final HashMap<String, Integer> registrationSlot = new HashMap<>();
+
+    private Vehicle[] getSlots() {
+        return slots;
+    }
+
+    private PriorityQueue<Integer> getPriorityQueue() {
+        return priorityQueueToInsert;
+    }
+
+    public HashMap<String, HashMap<Vehicle.REG_SLOT, LinkedHashSet<String>>> getColorVehicles() {
+        return colorVehicles;
+    }
+
+    public HashMap<String, Integer> getRegistrationSlot() {
+        return registrationSlot;
+    }
+
 
     public static void main(String[] args) throws FileNotFoundException {
         if (args == null || args[0].trim().isEmpty()) {
@@ -66,7 +88,7 @@ public class ParkingManager {
                     handleCreateParkingLot(line, split);
                     break;
                 case "park":
-//                handlePark(line, split);
+                    handlePark(line, split);
                     break;
                 case "leave":
 //                handleLeave(line, split);
@@ -117,11 +139,59 @@ public class ParkingManager {
         System.out.println("Created a parking lot with " + slots.length + (slots.length > 1 ? " slots" : " slot"));
     }
 
-    private Vehicle[] getSlots() {
-        return slots;
+
+    private void handlePark(String line, String[] split) throws IllFormedCommand {
+        if (slots == null) {
+            throw new IllFormedCommand("create_parking_lot should've been called before");
+        }
+        if (split.length != 3) {
+            throw new IllFormedCommand("Illformed park command " + line);
+
+        }
+        Integer slot = getSlot();
+        if (slot == null) {
+            System.out.println("Sorry, parking lot is full");
+            return;
+        }
+        String regisrationNumber = split[1];
+        String colour = split[2];
+        Vehicle vehicle = new Vehicle(regisrationNumber, slot, colour);
+        //Fixed size slots with Vehicle
+        slots[slot] = vehicle;
+        if (registrationSlot.get(regisrationNumber) != null) {
+            throw new IllFormedCommand("Car is already parked with registration number " + regisrationNumber);
+        } else {
+            // Key == Registration Number, Value = Slot number
+            registrationSlot.put(regisrationNumber, slot);
+            // Key = Colour, HashMap of REG and SLOT with their linked hash set of numbers
+            HashMap<Vehicle.REG_SLOT, LinkedHashSet<String>> regAndSlot = colorVehicles.get(colour);
+            if (regAndSlot == null) {
+                regAndSlot = new HashMap<>();
+                LinkedHashSet<String> registrationNumbers = new LinkedHashSet<>();
+                registrationNumbers.add(vehicle.getRegistrationNumber());
+                LinkedHashSet<String> slotNumbers = new LinkedHashSet<>();
+                slotNumbers.add(String.valueOf(vehicle.getSlot()));
+                regAndSlot.put(Vehicle.REG_SLOT.REG, registrationNumbers);
+                regAndSlot.put(Vehicle.REG_SLOT.SLOT, slotNumbers);
+                colorVehicles.put(vehicle.getColour(), regAndSlot);
+            } else {
+                LinkedHashSet<String> registrationNumbers = regAndSlot.get(Vehicle.REG_SLOT.REG);
+                if (registrationNumbers.contains(vehicle.getRegistrationNumber())) {
+                    throw new IllFormedCommand("Duplicate registration found... Invalid record");
+                }
+                registrationNumbers.add(vehicle.getRegistrationNumber());
+                LinkedHashSet<String> slotNumbers = regAndSlot.get(Vehicle.REG_SLOT.SLOT);
+                if (slotNumbers.contains(String.valueOf(vehicle.getSlot()))) {
+                    throw new IllFormedCommand("Duplicate slot found... Invalid record");
+                }
+                slotNumbers.add(String.valueOf(vehicle.getSlot()));
+                colorVehicles.put(vehicle.getColour(), regAndSlot);
+            }
+        }
+        System.out.println("Allocated slot number: " + (slot + 1));
     }
 
-    private PriorityQueue<Integer> getPriorityQueue() {
-        return priorityQueueToInsert;
+    private Integer getSlot() {
+        return priorityQueueToInsert.poll();
     }
 }
