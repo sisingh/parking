@@ -53,12 +53,14 @@ public class ParkingManagerTest {
 
     /**
      * Test of main method, of class ParkingManager.
+     * @throws java.lang.Exception
      */
     @Test
     public void testMainWithFile() throws Exception {
         System.out.println("test case with actual file");
         args = new String[1];
-        args[0] = "/Users/siddharthasingh/hike/ex/Infile.txt";
+        System.out.println("Home directory : " + System.getProperty("user.home"));
+        args[0] = System.getProperty("user.home") + "/Infile.txt";
         try {
             ParkingManager.main(args);
         } catch (FileNotFoundException ex) {
