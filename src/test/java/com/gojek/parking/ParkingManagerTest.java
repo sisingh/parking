@@ -1,7 +1,9 @@
 package com.gojek.parking;
 
 import com.gojek.parking.model.Vehicle;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -59,8 +61,27 @@ public class ParkingManagerTest {
     public void testMainWithFile() throws Exception {
         System.out.println("test case with actual file");
         args = new String[1];
-        System.out.println("Home directory : " + System.getProperty("user.home"));
         args[0] = System.getProperty("user.home") + "/Infile.txt";
+        File inputFile = new File(args[0]);
+        if (!inputFile.exists()) {
+            inputFile.createNewFile();
+            System.out.println("Creating file " + args[0]);
+            String input = "create_parking_lot 4\n"
+                + "park KA-05-MH-1384 Silver\n"
+                + "park HR-26-CW-0181 Black\n"
+                + "park MG-14-N-2493 Black\n"
+                + "park KA-05-MH-9702 Gold\n"
+                + "leave 2\n"
+                + "status\n"
+                + "park KA-20-M-2222 Black\n"
+                + "park DL-12-AA-9999 White\n"
+                + "registration_numbers_for_cars_with_colour Brown\n"
+                + "slot_numbers_for_cars_with_colour Black\n"
+                + "slot_number_for_registration_number KA-05-MH-1384\n"
+                + "slot_number_for_registration_number MH-04-AY-1111";
+
+            new FileOutputStream(inputFile).write(input.getBytes());
+        }
         try {
             ParkingManager.main(args);
         } catch (FileNotFoundException ex) {
